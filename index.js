@@ -67,6 +67,8 @@ function Osmosis(url, params) {
  * @private
  */
 
+Osmosis.Command = Command;
+
 Osmosis.prototype.stack = {
     change:     0,
     count:      0,
