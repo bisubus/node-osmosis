@@ -3,6 +3,7 @@
 var Command = require('./lib/Command.js'),
     request = require('./lib/Request.js'),
     libxml  = require('libxmljs-dom'),
+    util  = require('util'),
     instanceId      = 0,
     memoryUsage     = 0,
     cachedSelectors = {},
@@ -236,15 +237,27 @@ Osmosis.prototype.request = function (url, opts, callback, tries) {
 
                 if ((res === undefined || res.statusCode !== 404) &&
                     proxies !== undefined) {
-                    self.command.error('proxy ' + (proxies.index + 1) +
-                                        '/' + proxies.length +
-                                        ' failed (' + opts.proxy + ')');
 
-                    // remove the failing proxy
-                    if (proxies.length > 1) {
-                        opts.proxies.splice(proxies.index, 1);
-                        opts.proxy = proxies[proxies.index];
+                    var proxyNumbering;
+
+                    if (Array.isArray(proxies)) {
+                        proxyNumbering = (proxies.index + 1) + '/' + proxies.length + ' ';
+
+                        // remove the failing proxy
+                        if (proxies.length > 1) {
+                            opts.proxies.splice(proxies.index, 1);
+                            opts.proxy = proxies[proxies.index];
+                        }
+                    } else if (util.isFunction(proxies)) {
+                        proxyNumbering = '';
+
+                        // report the failing proxy and acquire a new one
+                        proxies(opts.proxy);
+                        opts.proxy = proxies(null, url);
                     }
+
+                    self.command.error('proxy ' + proxyNumbering +
+                                        'failed (' + opts.proxy + ')');
                 }
 
                 if (err !== null && tries < opts.tries) {
