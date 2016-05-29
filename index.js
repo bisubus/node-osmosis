@@ -3,7 +3,7 @@
 var Command = require('./lib/Command.js'),
     request = require('./lib/Request.js'),
     libxml  = require('libxmljs-dom'),
-    util  = require('util'),
+    util    = require('util'),
     instanceId      = 0,
     memoryUsage     = 0,
     cachedSelectors = {},
